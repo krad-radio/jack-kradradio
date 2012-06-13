@@ -98,7 +98,10 @@ int JackDummyDriver::Open(jack_nframes_t buffer_size,
     kraddriver->period_nanosecs = floor ((kraddriver->frames_per_period_f / kraddriver->sample_rate_f) * 1000000000.0f);
 	
 
-	jack_error("Krad Sez period nanosecs: %lu frames per period: %d sample rate: %d", kraddriver->period_nanosecs, kraddriver->frames_per_period, kraddriver->sample_rate);
+	jack_error("Krad Dummy Driver: Nanoseconds per period: %lu Frames per period: %d Sample Rate: %d", 
+			   kraddriver->period_nanosecs,
+			   kraddriver->frames_per_period,
+			   kraddriver->sample_rate);
 
 
 
@@ -158,19 +161,25 @@ int JackDummyDriver::Process()
 	
 	kraddriver->frame_counter += kraddriver->frames_per_period;
 	kraddriver->total_frames += kraddriver->frames_per_period;
-	if (kraddriver->frame_counter > kraddriver->sample_rate * 240) {
-		jack_error("Krad Sez remaining period nanosecs: %lu Nanosecs off: %lld\n", kraddriver->remaining_period_nanosecs, kraddriver->nanosecs_off);
+	if (kraddriver->frame_counter > kraddriver->sample_rate * 100) {
+		jack_error("Krad Dummy Driver: remaining period nanosecs: %lu Nanosecs off: %lld", 
+				   kraddriver->remaining_period_nanosecs,
+				   kraddriver->nanosecs_off);
 
 		kraddriver->expected_frames = (kraddriver->total_nanosecs / kraddriver->period_nanosecs) * kraddriver->frames_per_period;
 		kraddriver->frames_off = kraddriver->total_frames - kraddriver->expected_frames;
-		jack_error("Expected Total Frames: %d Actual Total Frames: %d Difference: %d Total Nanoseconds: %lu\n", kraddriver->expected_frames, kraddriver->total_frames, kraddriver->frames_off, kraddriver->total_nanosecs);
+		jack_error("Krad Dummy Driver: Expected Total Frames: %lld Actual Total Frames: %lld Difference: %lld Total Nanoseconds: %lu",
+				   kraddriver->expected_frames,
+				   kraddriver->total_frames,
+				   kraddriver->frames_off,
+				   kraddriver->total_nanosecs);
 		kraddriver->frame_counter = 0;
 	}
 	
 	kraddriver->next_wakeup = add_ts(kraddriver->cycle_finish_time, kraddriver->remaining_period_nanosecs + kraddriver->nanosecs_off);
 
 	if(clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &kraddriver->next_wakeup, NULL)) {
-		jack_error("error while sleeping");
+		jack_error("Krad Dummy Driver: error while sleeping");
 	}
     
     return 0;
@@ -292,6 +301,8 @@ extern "C"
                     break;
             }
         }
+
+		//printf("per: %d\n", period_size);
 
         if (wait_time == 0) // Not set
             wait_time = (unsigned long)((((float)period_size) / ((float)sample_rate)) * 1000000.0f);

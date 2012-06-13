@@ -28,8 +28,8 @@ typedef struct _krad_driver krad_driver_t;
 
 struct _krad_driver
 {
-	int total_periods;
-	int frames_off;
+	signed long long total_periods;
+	signed long long frames_off;
     int  sample_rate;
     int  frames_per_period;
     float  sample_rate_f;
@@ -40,9 +40,9 @@ struct _krad_driver
     unsigned long long total_nanosecs;
 	signed long long nanosecs_off;
 	unsigned long long expected_nanosecs;
-    int frame_counter;
-    int total_frames;
-    int expected_frames;
+    signed long long frame_counter;
+    signed long long total_frames;
+    signed long long expected_frames;
 
 	struct timespec first_start_time;
 	int started;
